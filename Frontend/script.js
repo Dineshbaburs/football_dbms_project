@@ -1,28 +1,26 @@
-// Global URL
 const API_URL = 'http://localhost:8081';
 
-// 1. Fetch and Display Players (READ)
+// 1. READ: Load Players
 function loadPlayers() {
     fetch(`${API_URL}/players`)
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            const tableBody = document.getElementById('playersTable');
-            tableBody.innerHTML = ''; 
-            
+            const table = document.getElementById('playersTable');
+            table.innerHTML = "";
             data.forEach(player => {
                 const row = `<tr>
                     <td>${player.Player_ID}</td>
                     <td>${player.F_Name} ${player.L_Name}</td>
                     <td>${player.Position}</td>
-                    <td>${player.Club_Name || 'Free Agent'}</td>
+                    <td>${player.Club_Name || 'No Club'}</td>
                 </tr>`;
-                tableBody.innerHTML += row;
+                table.innerHTML += row;
             });
         })
-        .catch(err => console.error('Error:', err));
+        .catch(err => console.log(err));
 }
 
-// 2. Add New Player (CREATE)
+// 2. CREATE: Add Player
 function addPlayer() {
     const f_name = document.getElementById('fname').value;
     const l_name = document.getElementById('lname').value;
@@ -34,58 +32,57 @@ function addPlayer() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ f_name, l_name, position, club_id })
     })
-    .then(response => response.json())
-    .then(data => {
-        alert(data);
+    .then(res => res.json())
+    .then(msg => {
+        alert(msg);
         loadPlayers(); // Refresh list
     });
 }
 
-// 3. Delete Player (DELETE)
+// 3. DELETE: Remove Player
 function deletePlayer() {
     const id = document.getElementById('delete_id').value;
-    if(!id) return alert("Please enter an ID");
+    if(!id) return alert("Enter an ID!");
 
-    fetch(`${API_URL}/players/${id}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data);
+    fetch(`${API_URL}/players/${id}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(msg => {
+        alert(msg);
         loadPlayers();
     });
 }
 
-// 4. Update Player (UPDATE)
+// 4. UPDATE: Change Position
 function updatePlayer() {
     const id = document.getElementById('update_id').value;
     const position = document.getElementById('new_position').value;
-    if(!id) return alert("Please enter an ID");
+    if(!id) return alert("Enter an ID!");
 
     fetch(`${API_URL}/players/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ position: position })
     })
-    .then(response => response.json())
-    .then(data => {
-        alert(data);
+    .then(res => res.json())
+    .then(msg => {
+        alert(msg);
         loadPlayers();
     });
 }
 
-// 5. Load Stats (REPORT)
-function loadStats() {
-    fetch(`${API_URL}/stats`)
-        .then(response => response.json())
+// 5. REPORT: Load Stats
+function loadReports() {
+    fetch(`${API_URL}/reports`)
+        .then(res => res.json())
         .then(data => {
-            const list = document.getElementById('statsList');
-            list.innerHTML = '';
-            data.forEach(stat => {
-                list.innerHTML += `<li><strong>${stat.Club_Name}:</strong> ${stat.Player_Count} Players</li>`;
+            const area = document.getElementById('reportArea');
+            area.innerHTML = "<h4>Total Players per Club:</h4><ul>";
+            data.forEach(item => {
+                area.innerHTML += `<li>${item.Club_Name}: <strong>${item.Total_Players}</strong> players</li>`;
             });
+            area.innerHTML += "</ul>";
         });
 }
 
-// Initial Load
-document.addEventListener("DOMContentLoaded", loadPlayers);
+// Load automatically on start
+loadPlayers();

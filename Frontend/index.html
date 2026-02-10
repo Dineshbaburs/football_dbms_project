@@ -2,16 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Football Club Management System</title>
+    <title>DBMS Mini Project</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Extra styles to distinguish the 5 modules */
-        .module { padding: 20px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd; }
-        .insert-mod { background-color: #e3f2fd; } /* Blue */
-        .delete-mod { background-color: #ffebee; } /* Red */
-        .update-mod { background-color: #fff3e0; } /* Orange */
-        .report-mod { background-color: #e8f5e9; } /* Green */
-        .view-mod   { background-color: #ffffff; }
+        /* Simple Internal CSS for layout */
+        body { font-family: 'Times New Roman', serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; box-shadow: 0px 0px 10px gray; }
+        h1 { text-align: center; color: #333; }
+        .module { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        
+        /* Color Coding for Modules */
+        .mod-insert { background-color: #e3f2fd; } /* Blue */
+        .mod-view { background-color: #ffffff; }   /* White */
+        .mod-update { background-color: #fff3e0; } /* Orange */
+        .mod-delete { background-color: #ffebee; } /* Red */
+        .mod-report { background-color: #e8f5e9; } /* Green */
+
+        input, select, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #333; color: white; }
     </style>
 </head>
 <body>
@@ -19,7 +30,7 @@
     <div class="container">
         <h1>Football Club Management System</h1>
 
-        <div class="module insert-mod">
+        <div class="module mod-insert">
             <h3>1. Add New Player</h3>
             <input type="text" id="fname" placeholder="First Name">
             <input type="text" id="lname" placeholder="Last Name">
@@ -29,31 +40,12 @@
                 <option value="Defender">Defender</option>
                 <option value="Goalkeeper">Goalkeeper</option>
             </select>
-            <input type="number" id="club_id" placeholder="Club ID (e.g., 1)">
-            <button onclick="addPlayer()">Add Player</button>
+            <input type="number" id="club_id" placeholder="Club ID (e.g., 1 or 2)">
+            <button onclick="addPlayer()" style="background-color: #2196F3; color: white;">Add Player</button>
         </div>
 
-        <div class="module delete-mod">
-            <h3>2. Delete Player</h3>
-            <p>Enter ID to remove a player from the database.</p>
-            <input type="number" id="delete_id" placeholder="Player ID">
-            <button onclick="deletePlayer()" style="background-color: #d32f2f;">Delete</button>
-        </div>
-
-        <div class="module update-mod">
-            <h3>3. Update Player Position</h3>
-            <input type="number" id="update_id" placeholder="Player ID">
-            <select id="new_position">
-                <option value="Forward">Forward</option>
-                <option value="Midfielder">Midfielder</option>
-                <option value="Defender">Defender</option>
-                <option value="Goalkeeper">Goalkeeper</option>
-            </select>
-            <button onclick="updatePlayer()" style="background-color: #f57c00;">Update Position</button>
-        </div>
-
-        <div class="module view-mod">
-            <h3>4. Player Directory (View)</h3>
+        <div class="module mod-view">
+            <h3>2. Player List (View)</h3>
             <button onclick="loadPlayers()">Refresh List</button>
             <table>
                 <thead>
@@ -68,10 +60,27 @@
             </table>
         </div>
 
-        <div class="module report-mod">
-            <h3>5. Club Statistics (Report)</h3>
-            <button onclick="loadStats()">Generate Report</button>
-            <ul id="statsList"></ul>
+        <div class="module mod-update">
+            <h3>3. Update Player Position</h3>
+            <input type="number" id="update_id" placeholder="Enter Player ID to Update">
+            <select id="new_position">
+                <option value="Forward">Forward</option>
+                <option value="Midfielder">Midfielder</option>
+                <option value="Defender">Defender</option>
+            </select>
+            <button onclick="updatePlayer()" style="background-color: #FF9800; color: white;">Update Position</button>
+        </div>
+
+        <div class="module mod-delete">
+            <h3>4. Delete Player</h3>
+            <input type="number" id="delete_id" placeholder="Enter Player ID to Delete">
+            <button onclick="deletePlayer()" style="background-color: #f44336; color: white;">Delete Player</button>
+        </div>
+
+        <div class="module mod-report">
+            <h3>5. Club Statistics Report</h3>
+            <button onclick="loadReports()" style="background-color: #4CAF50; color: white;">Generate Report</button>
+            <div id="reportArea" style="margin-top: 10px;"></div>
         </div>
 
     </div>
