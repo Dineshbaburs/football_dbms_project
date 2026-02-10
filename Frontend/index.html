@@ -2,16 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Football Club Management</title>
+    <title>Football Club Management System</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Extra styles to distinguish the 5 modules */
+        .module { padding: 20px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd; }
+        .insert-mod { background-color: #e3f2fd; } /* Blue */
+        .delete-mod { background-color: #ffebee; } /* Red */
+        .update-mod { background-color: #fff3e0; } /* Orange */
+        .report-mod { background-color: #e8f5e9; } /* Green */
+        .view-mod   { background-color: #ffffff; }
+    </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Football Club Manager</h1>
+        <h1>Football Club Management System</h1>
 
-        <div class="form-section">
-            <h3>Add New Player</h3>
+        <div class="module insert-mod">
+            <h3>1. Add New Player</h3>
             <input type="text" id="fname" placeholder="First Name">
             <input type="text" id="lname" placeholder="Last Name">
             <select id="position">
@@ -20,26 +29,51 @@
                 <option value="Defender">Defender</option>
                 <option value="Goalkeeper">Goalkeeper</option>
             </select>
-            <input type="number" id="club_id" placeholder="Club ID">
+            <input type="number" id="club_id" placeholder="Club ID (e.g., 1)">
             <button onclick="addPlayer()">Add Player</button>
         </div>
 
-        <div class="table-section">
-            <h3>Player List</h3>
+        <div class="module delete-mod">
+            <h3>2. Delete Player</h3>
+            <p>Enter ID to remove a player from the database.</p>
+            <input type="number" id="delete_id" placeholder="Player ID">
+            <button onclick="deletePlayer()" style="background-color: #d32f2f;">Delete</button>
+        </div>
+
+        <div class="module update-mod">
+            <h3>3. Update Player Position</h3>
+            <input type="number" id="update_id" placeholder="Player ID">
+            <select id="new_position">
+                <option value="Forward">Forward</option>
+                <option value="Midfielder">Midfielder</option>
+                <option value="Defender">Defender</option>
+                <option value="Goalkeeper">Goalkeeper</option>
+            </select>
+            <button onclick="updatePlayer()" style="background-color: #f57c00;">Update Position</button>
+        </div>
+
+        <div class="module view-mod">
+            <h3>4. Player Directory (View)</h3>
+            <button onclick="loadPlayers()">Refresh List</button>
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
+                        <th>Name</th>
                         <th>Position</th>
-                        <th>Club ID</th>
+                        <th>Club</th>
                     </tr>
                 </thead>
-                <tbody id="playersTable">
-                    </tbody>
+                <tbody id="playersTable"></tbody>
             </table>
         </div>
+
+        <div class="module report-mod">
+            <h3>5. Club Statistics (Report)</h3>
+            <button onclick="loadStats()">Generate Report</button>
+            <ul id="statsList"></ul>
+        </div>
+
     </div>
 
     <script src="script.js"></script>

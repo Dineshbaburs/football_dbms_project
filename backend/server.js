@@ -5,15 +5,15 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.use(cors()); // Allow frontend to talk to backend
+app.use(cors());
 app.use(bodyParser.json());
 
-// 1. DATABASE CONNECTION
+// 1. DATABASE CONNECTION (FIXED NAME)
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root',      // Your MySQL username (usually root)
-    password: '',      // Your MySQL password
-    database: 'football_club_db' // Make sure you created this DB in MySQL
+    user: 'root',
+    password: '',      // ENTER YOUR PASSWORD HERE IF YOU HAVE ONE
+    database: 'football_dbms_project' // Fixed: Matches your setup.sql
 });
 
 db.connect(err => {
@@ -21,21 +21,27 @@ db.connect(err => {
         console.error('Database connection failed:', err.stack);
         return;
     }
-    console.log('Connected to MySQL Database.');
+    console.log('Connected to MySQL Database (football_dbms_project).');
 });
 
-// 2. API ENDPOINTS (The "Functions" your frontend calls)
+// ==========================
+// ROUTES (API ENDPOINTS)
+// ==========================
 
-// GET: Fetch all players
+// 1. GET: Fetch all players (View)
 app.get('/players', (req, res) => {
-    const sql = "SELECT * FROM Player";
+    const sql = `
+        SELECT p.Player_ID, p.F_Name, p.L_Name, p.Position, c.Club_Name 
+        FROM Player p
+        LEFT JOIN Club c ON p.Club_ID = c.Club_ID
+    `;
     db.query(sql, (err, data) => {
         if (err) return res.json(err);
         return res.json(data);
     });
 });
 
-// POST: Add a new player
+// 2. POST: Add a new player (Insert)
 app.post('/players', (req, res) => {
     const sql = "INSERT INTO Player (F_Name, L_Name, Position, Club_ID) VALUES (?)";
     const values = [
@@ -50,7 +56,39 @@ app.post('/players', (req, res) => {
     });
 });
 
-// START SERVER
+// 3. DELETE: Remove a player (Delete) -- REQUIRED FOR GUIDELINES
+app.delete('/players/:id', (req, res) => {
+    const sql = "DELETE FROM Player WHERE Player_ID = ?";
+    db.query(sql, [req.params.id], (err, data) => {
+        if (err) return res.json(err);
+        return res.json("Player deleted successfully!");
+    });
+});
+
+// 4. PUT: Update a player's position (Update) -- REQUIRED FOR GUIDELINES
+app.put('/players/:id', (req, res) => {
+    const sql = "UPDATE Player SET Position = ? WHERE Player_ID = ?";
+    db.query(sql, [req.body.position, req.params.id], (err, data) => {
+        if (err) return res.json(err);
+        return res.json("Player updated successfully!");
+    });
+});
+
+// 5. GET: Report (Aggregation) -- REQUIRED FOR REPORTS MODULE
+// Counts how many players are in each club
+app.get('/stats', (req, res) => {
+    const sql = `
+        SELECT c.Club_Name, COUNT(p.Player_ID) as Player_Count 
+        FROM Club c 
+        LEFT JOIN Player p ON c.Club_ID = p.Club_ID 
+        GROUP BY c.Club_Name`;
+    db.query(sql, (err, data) => {
+        if (err) return res.json(err);
+        return res.json(data);
+    });
+});
+
+// Start Server
 app.listen(8081, () => {
-    console.log("Listening on port 8081...");
+    console.log("Server running on port 8081...");
 });
