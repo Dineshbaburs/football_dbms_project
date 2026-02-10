@@ -2,75 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>DBMS Mini Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Manager Pro</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: 'Times New Roman', serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; box-shadow: 0 0 10px gray; }
-        h1 { text-align: center; color: #333; }
-        .module { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .mod-insert { background-color: #e3f2fd; } 
-        .mod-view { background-color: #ffffff; }   
-        .mod-update { background-color: #fff3e0; } 
-        .mod-delete { background-color: #ffebee; } 
-        .mod-report { background-color: #e8f5e9; } 
-        input, select, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
-        button { cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #333; color: white; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Football Club Management System</h1>
 
-        <div class="module mod-insert">
-            <h3>1. Add Player</h3>
-            <input type="text" id="fname" placeholder="First Name">
-            <input type="text" id="lname" placeholder="Last Name">
-            <select id="position">
-                <option value="Forward">Forward</option>
-                <option value="Midfielder">Midfielder</option>
-                <option value="Defender">Defender</option>
-                <option value="Goalkeeper">Goalkeeper</option>
-            </select>
-            <input type="number" id="club_id" placeholder="Club ID (1=Man Utd, 2=Real Madrid)">
-            <button onclick="addPlayer()" style="background-color: #2196F3; color: white;">Add Player</button>
-        </div>
-
-        <div class="module mod-view">
-            <h3>2. View Players</h3>
-            <button onclick="loadPlayers()">Refresh List</button>
-            <table id="playerTable">
-                <thead><tr><th>ID</th><th>Name</th><th>Position</th><th>Club</th></tr></thead>
-                <tbody id="playersTableBody"></tbody>
-            </table>
-        </div>
-
-        <div class="module mod-update">
-            <h3>3. Update Position</h3>
-            <input type="number" id="update_id" placeholder="Player ID">
-            <select id="new_position">
-                <option value="Forward">Forward</option>
-                <option value="Midfielder">Midfielder</option>
-                <option value="Defender">Defender</option>
-            </select>
-            <button onclick="updatePlayer()" style="background-color: #FF9800; color: white;">Update</button>
-        </div>
-
-        <div class="module mod-delete">
-            <h3>4. Delete Player</h3>
-            <input type="number" id="delete_id" placeholder="Player ID">
-            <button onclick="deletePlayer()" style="background-color: #f44336; color: white;">Delete</button>
-        </div>
-
-        <div class="module mod-report">
-            <h3>5. Reports</h3>
-            <button onclick="loadReports()" style="background-color: #4CAF50; color: white;">Generate Report</button>
-            <div id="reportArea"></div>
-        </div>
+    <div class="sidebar">
+        <h2>⚽ Club Manager</h2>
+        <ul>
+            <li onclick="showSection('view-section')" class="active">👥 Player Database</li>
+            <li onclick="showSection('insert-section')">➕ Add Player</li>
+            <li onclick="showSection('update-section')">✏️ Manage / Edit</li>
+            <li onclick="showSection('report-section')">📊 Club Reports</li>
+        </ul>
+        <div class="footer">DBMS Mini Project</div>
     </div>
+
+    <div class="main-content">
+        
+        <div id="view-section" class="section">
+            <div class="header-flex">
+                <h1>Player Database</h1>
+                <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 Search players...">
+            </div>
+            
+            <div class="table-container">
+                <button onclick="loadPlayers()" class="refresh-btn">🔄 Refresh Data</button>
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Position</th>
+                            <th>Club</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="insert-section" class="section" style="display:none;">
+            <h1>Register New Player</h1>
+            <div class="card">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="fname" placeholder="e.g. Cristiano">
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="lname" placeholder="e.g. Ronaldo">
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <select id="position">
+                        <option value="Forward">Forward</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Defender">Defender</option>
+                        <option value="Goalkeeper">Goalkeeper</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Club ID (1=ManUtd, 2=RealMadrid, 3=Barca)</label>
+                    <input type="number" id="club_id" placeholder="Enter Club ID">
+                </div>
+                <button onclick="addPlayer()" class="action-btn save-btn">Save Player</button>
+            </div>
+        </div>
+
+        <div id="update-section" class="section" style="display:none;">
+            <h1>Manage Player Contract</h1>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Update Position</h3>
+                    <p class="hint">Use the table "Edit" button to auto-fill this.</p>
+                    <label>Player ID</label>
+                    <input type="number" id="update_id" readonly style="background: #e0e0e0;">
+                    
+                    <label>New Position</label>
+                    <select id="new_position">
+                        <option value="Forward">Forward</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Defender">Defender</option>
+                    </select>
+                    <button onclick="updatePlayer()" class="action-btn update-btn">Update Position</button>
+                </div>
+
+                <div class="card danger-zone">
+                    <h3>Delete Player</h3>
+                    <p class="hint">Warning: This cannot be undone.</p>
+                    <label>Player ID</label>
+                    <input type="number" id="delete_id" placeholder="ID to delete">
+                    <button onclick="deletePlayer()" class="action-btn delete-btn">❌ Delete Player</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="report-section" class="section" style="display:none;">
+            <h1>Club Statistics</h1>
+            <button onclick="loadReports()" class="refresh-btn">Generate Report</button>
+            <div id="reportArea" class="stats-grid">
+                </div>
+        </div>
+
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
