@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Football Club Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Football Club Manager</h1>
+
+        <div class="form-section">
+            <h3>Add New Player</h3>
+            <input type="text" id="fname" placeholder="First Name">
+            <input type="text" id="lname" placeholder="Last Name">
+            <select id="position">
+                <option value="Forward">Forward</option>
+                <option value="Midfielder">Midfielder</option>
+                <option value="Defender">Defender</option>
+                <option value="Goalkeeper">Goalkeeper</option>
+            </select>
+            <input type="number" id="club_id" placeholder="Club ID">
+            <button onclick="addPlayer()">Add Player</button>
+        </div>
+
+        <div class="table-section">
+            <h3>Player List</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Position</th>
+                        <th>Club ID</th>
+                    </tr>
+                </thead>
+                <tbody id="playersTable">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
