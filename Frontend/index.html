@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Club Manager Pro 2026</title>
+    <title>Club Manager Ultimate</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,17 +14,17 @@
     <nav class="sidebar">
         <div class="logo">
             <i class="fa-solid fa-futbol"></i>
-            <h2>Club Manager</h2>
+            <h2>Manager Pro</h2>
         </div>
         <ul>
             <li class="active" onclick="switchTab('dashboard')">
                 <i class="fa-solid fa-users"></i> Squad List
             </li>
             <li onclick="switchTab('reports')">
-                <i class="fa-solid fa-chart-pie"></i> Club Reports
+                <i class="fa-solid fa-chart-pie"></i> Analytics
             </li>
         </ul>
-        <button class="add-btn" onclick="openModal('addModal')">
+        <button class="add-btn" onclick="openAddModal()">
             <i class="fa-solid fa-plus"></i> New Signing
         </button>
     </nav>
@@ -33,60 +34,53 @@
             <h1 id="pageTitle">Squad Database</h1>
             <div class="search-box">
                 <i class="fa-solid fa-search"></i>
-                <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search player name...">
+                <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search players...">
             </div>
         </header>
 
         <section id="dashboard" class="view-section">
             <div class="table-card">
-                <table>
+                <table id="sortableTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Player Name</th>
-                            <th>Position</th>
-                            <th>Club</th>
+                            <th onclick="sortTable(0)">ID <i class="fa-solid fa-sort"></i></th>
+                            <th onclick="sortTable(1)">Name <i class="fa-solid fa-sort"></i></th>
+                            <th onclick="sortTable(2)">Position <i class="fa-solid fa-sort"></i></th>
+                            <th onclick="sortTable(3)">Club <i class="fa-solid fa-sort"></i></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="playersTableBody">
-                        </tbody>
+                    <tbody id="playersTableBody"></tbody>
                 </table>
             </div>
         </section>
 
         <section id="reports" class="view-section" style="display: none;">
-            <div class="stats-grid" id="statsGrid">
+            <div class="reports-container">
+                <div class="chart-box">
+                    <canvas id="clubChart"></canvas>
                 </div>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
         </section>
     </main>
 
     <div id="addModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('addModal')">&times;</span>
-            <h2><i class="fa-solid fa-user-plus"></i> Register New Player</h2>
+            <h2>Register New Player</h2>
             <form onsubmit="event.preventDefault(); addPlayer();">
-                <div class="input-group">
-                    <label>First Name</label>
-                    <input type="text" id="fname" required>
-                </div>
-                <div class="input-group">
-                    <label>Last Name</label>
-                    <input type="text" id="lname" required>
-                </div>
-                <div class="input-group">
-                    <label>Position</label>
-                    <select id="position">
-                        <option value="Forward">Forward</option>
-                        <option value="Midfielder">Midfielder</option>
-                        <option value="Defender">Defender</option>
-                        <option value="Goalkeeper">Goalkeeper</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Club ID (1=ManUtd, 2=Real, 3=Barca)</label>
-                    <input type="number" id="club_id" required>
-                </div>
+                <input type="text" id="fname" placeholder="First Name" required>
+                <input type="text" id="lname" placeholder="Last Name" required>
+                <select id="position">
+                    <option value="Forward">Forward</option>
+                    <option value="Midfielder">Midfielder</option>
+                    <option value="Defender">Defender</option>
+                    <option value="Goalkeeper">Goalkeeper</option>
+                </select>
+                <select id="club_select" required>
+                    <option value="">Select Club...</option>
+                </select>
                 <button type="submit" class="submit-btn">Sign Player</button>
             </form>
         </div>
@@ -95,29 +89,22 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('editModal')">&times;</span>
-            <h2><i class="fa-solid fa-pen-to-square"></i> Update Contract</h2>
+            <h2>Update Position</h2>
             <form onsubmit="event.preventDefault(); updatePlayer();">
-                <input type="hidden" id="edit_id"> <div class="input-group">
-                    <label>Player Name</label>
-                    <input type="text" id="edit_name" readonly style="background: #eee;">
-                </div>
-                
-                <div class="input-group">
-                    <label>New Position</label>
-                    <select id="edit_position">
-                        <option value="Forward">Forward</option>
-                        <option value="Midfielder">Midfielder</option>
-                        <option value="Defender">Defender</option>
-                        <option value="Goalkeeper">Goalkeeper</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-btn warning-btn">Update Position</button>
+                <input type="hidden" id="edit_id">
+                <input type="text" id="edit_name" readonly style="background: #eee;">
+                <select id="edit_position">
+                    <option value="Forward">Forward</option>
+                    <option value="Midfielder">Midfielder</option>
+                    <option value="Defender">Defender</option>
+                    <option value="Goalkeeper">Goalkeeper</option>
+                </select>
+                <button type="submit" class="submit-btn warning-btn">Save Changes</button>
             </form>
         </div>
     </div>
 
-    <div id="toast">Action Successful</div>
-
+    <div id="toast">Success!</div>
     <script src="script.js"></script>
 </body>
 </html>
