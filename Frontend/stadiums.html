@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+<h2>⚽ ERP</h2>
+<ul>
+<li onclick="go('dashboard.html')">Dashboard</li>
+<li onclick="go('players.html')">Players</li>
+<li onclick="go('clubs.html')">Clubs</li>
+<li class="active">Stadiums</li>
+<li onclick="go('matches.html')">Matches</li>
+<li onclick="go('contracts.html')">Contracts</li>
+</ul>
+</aside>
+
+<main class="main">
+<h1>Stadium Management</h1>
+<button onclick="openModal('stadiumModal')">+ Add Stadium</button>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>City</th>
+<th>Capacity</th>
+<th>Country</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="stadiumTable"></tbody>
+</table>
+</main>
+</div>
+
+<div class="modal" id="stadiumModal">
+<div class="modal-content">
+<input id="stadium_name" placeholder="Stadium Name">
+<input id="city" placeholder="City">
+<input id="capacity" placeholder="Capacity">
+<input id="country_s" placeholder="Country">
+<button onclick="saveStadium()">Save</button>
+<button onclick="closeModal('stadiumModal')" class="danger">Cancel</button>
+</div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/stadiums.js"></script>
+</body>
+</html>

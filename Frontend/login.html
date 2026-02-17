@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head><title>Login</title><link rel="stylesheet" href="style.css"></head>
-<body class="center">
-<div class="card">
-    <h2>Football Manager Login</h2>
+<head>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body style="display:flex;justify-content:center;align-items:center;height:100vh;">
+
+<div class="modal-content">
+    <h2>⚽ Football ERP Login</h2>
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
     <button onclick="login()">Login</button>
 </div>
+
 <script>
 function login(){
-    if(user.value==="admin" && pass.value==="123")
-        window.location="dashboard.html";
-    else alert("Invalid Login");
+    if(user.value==="admin" && pass.value==="admin123"){
+        window.location.href="dashboard.html";
+    } else alert("Invalid");
 }
 </script>
 </body>

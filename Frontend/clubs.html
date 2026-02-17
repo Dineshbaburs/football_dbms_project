@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+<h2>⚽ ERP</h2>
+<ul>
+<li onclick="go('dashboard.html')">Dashboard</li>
+<li onclick="go('players.html')">Players</li>
+<li class="active">Clubs</li>
+<li onclick="go('stadiums.html')">Stadiums</li>
+<li onclick="go('matches.html')">Matches</li>
+<li onclick="go('contracts.html')">Contracts</li>
+</ul>
+</aside>
+
+<main class="main">
+<h1>Club Management</h1>
+<button onclick="openModal('clubModal')">+ Add Club</button>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Country</th>
+<th>Manager</th>
+<th>Budget</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="clubTable"></tbody>
+</table>
+</main>
+</div>
+
+<div class="modal" id="clubModal">
+<div class="modal-content">
+<input id="club_name" placeholder="Club Name">
+<input id="founded_year" placeholder="Founded Year">
+<input id="total_trophies" placeholder="Total Trophies">
+<input id="owner_name" placeholder="Owner Name">
+<input id="manager_name" placeholder="Manager Name">
+<input id="country" placeholder="Country">
+<input id="budget" placeholder="Budget">
+<input id="stadium_id" placeholder="Stadium ID">
+<button onclick="saveClub()">Save</button>
+<button onclick="closeModal('clubModal')" class="danger">Cancel</button>
+</div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/clubs.js"></script>
+</body>
+</html>

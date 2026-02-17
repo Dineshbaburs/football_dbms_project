@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="layout">
+<aside class="sidebar">
+<h2>⚽ ERP</h2>
+<ul>
+<li onclick="go('dashboard.html')">Dashboard</li>
+<li onclick="go('players.html')">Players</li>
+<li onclick="go('clubs.html')">Clubs</li>
+<li onclick="go('stadiums.html')">Stadiums</li>
+<li onclick="go('matches.html')">Matches</li>
+<li class="active">Contracts</li>
+</ul>
+</aside>
+
+<main class="main">
+<h1>Contract Management</h1>
+<button onclick="openModal('contractModal')">+ Add Contract</button>
+
+<table>
+<thead>
+<tr>
+<th>Player</th>
+<th>Club</th>
+<th>Salary</th>
+<th>Start</th>
+<th>End</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="contractTable"></tbody>
+</table>
+</main>
+</div>
+
+<div class="modal" id="contractModal">
+<div class="modal-content">
+<input id="player_id" placeholder="Player ID">
+<input id="club_id_c" placeholder="Club ID">
+<input id="salary" placeholder="Salary">
+<input id="start_date" type="date">
+<input id="end_date" type="date">
+<input id="bonus" placeholder="Bonus">
+<input id="release_clause" placeholder="Release Clause">
+<button onclick="saveContract()">Save</button>
+<button onclick="closeModal('contractModal')" class="danger">Cancel</button>
+</div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/contracts.js"></script>
+</body>
+</html>
