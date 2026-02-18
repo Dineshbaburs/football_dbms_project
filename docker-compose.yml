@@ -12,7 +12,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./football_db.sql:/docker-entrypoint-initdb.d/football_db.sql
+      - ./football_db.sql:/docker-entrypoint-initdb.d/football_db.sql:Z
 
   backend:
     build: ./backend

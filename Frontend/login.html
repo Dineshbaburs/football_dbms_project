@@ -1,23 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <title>Football DBMS - Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body style="display:flex;justify-content:center;align-items:center;height:100vh;">
 
-<div class="modal-content">
-    <h2>⚽ Football ERP Login</h2>
-    <input id="user" placeholder="Username">
-    <input id="pass" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-</div>
-
-<script>
-function login(){
-    if(user.value==="admin" && pass.value==="admin123"){
-        window.location.href="dashboard.html";
-    } else alert("Invalid");
-}
-</script>
+<body class="login-body">
+    <div class="login-card">
+        <h2>Football Management System</h2>
+        <input type="text" id="username" placeholder="Username (admin/user)">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p>Tip: Use <b>admin/admin</b> for full access.</p>
+    </div>
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
 </body>
+
 </html>

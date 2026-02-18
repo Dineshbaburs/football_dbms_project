@@ -1,39 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<div class="layout">
-<aside class="sidebar">
-<h2>⚽ ERP</h2>
-<ul>
-<li class="active">Dashboard</li>
-<li onclick="go('players.html')">Players</li>
-<li onclick="go('clubs.html')">Clubs</li>
-<li onclick="go('stadiums.html')">Stadiums</li>
-<li onclick="go('matches.html')">Matches</li>
-<li onclick="go('contracts.html')">Contracts</li>
-</ul>
-</aside>
+    <div class="sidebar">
+        <h2>DBMS Project</h2>
+        <a onclick="go('dashboard.html')" class="active">Dashboard</a>
+        <a onclick="go('players.html')">Players</a>
+        <a onclick="go('clubs.html')">Clubs</a>
+        <a onclick="go('contracts.html')">Contracts</a>
+        <a onclick="go('matches.html')">Matches</a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 
-<main class="main">
-<h1>Dashboard</h1>
-<div id="summary"></div>
-</main>
-</div>
+    <div class="main">
+        <h1>Overview Statistics</h1>
+        <div class="stats-grid">
+            <div class="card">
+                <h3>Total Players</h3>
+                <p id="totalPlayers">0</p>
+            </div>
+            <div class="card">
+                <h3>Active Clubs</h3>
+                <p id="totalClubs">0</p>
+            </div>
+            <div class="card">
+                <h3>Total Market Value</h3>
+                <p id="totalValue">₹0</p>
+            </div>
+            <div class="card">
+                <h3>Salary Analysis</h3>
+                <p id="avgSalary">Avg: ₹0</p>
+            </div>
+        </div>
+    </div>
 
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", async ()=>{
-    const data = await getData("dashboard-summary");
-    summary.innerHTML=`
-        <p>Total Players: ${data.totalPlayers}</p>
-        <p>Total Clubs: ${data.totalClubs}</p>
-        <p>Total Value: ₹${data.totalValue}</p>
-    `;
-});
-</script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
+
 </html>
