@@ -1,0 +1,356 @@
+Create Tables in THIS EXACT ORDER
+
+⚠️ Follow exactly.
+
+🟢 1️⃣ CLUB (No dependencies)
+create table club (
+    club_id int primary key auto_increment,
+    club_name varchar(100),
+    founded_year int,
+    total_trophies int,
+    owner_name varchar(100)
+) engine=InnoDB;
+
+🟢 2️⃣ STADIUM (No dependencies)
+create table stadium (
+    stadium_id int primary key auto_increment,
+    stadium_name varchar(100),
+    capacity int,
+    city varchar(50)
+) engine=InnoDB;
+
+🟢 3️⃣ PLAYER (Depends on club)
+create table player (
+    player_id int primary key auto_increment,
+    f_name varchar(50),
+    l_name varchar(50),
+    dob date,
+    age int,
+    position varchar(50),
+    city varchar(50),
+    state varchar(50),
+    pincode varchar(10),
+    club_id int,
+    foreign key (club_id) references club(club_id)
+        on delete cascade
+) engine=InnoDB;
+
+🟢 4️⃣ PLAYER_PHONE (Depends on player)
+create table player_phone (
+    player_id int,
+    phone_no varchar(15),
+    primary key(player_id, phone_no),
+    foreign key(player_id) references player(player_id)
+        on delete cascade
+) engine=InnoDB;
+
+🟢 5️⃣ CONTRACT (Depends on player & club)
+create table contract (
+    contract_id int primary key auto_increment,
+    start_date date,
+    end_date date,
+    contract_duration int,
+    salary decimal(10,2),
+    player_id int,
+    club_id int,
+    foreign key (player_id) references player(player_id)
+        on delete cascade,
+    foreign key (club_id) references club(club_id)
+        on delete cascade
+) engine=InnoDB;
+
+🟢 6️⃣ MATCH_INFO (Depends on club & stadium)
+create table match_info (
+    match_id int primary key auto_increment,
+    match_type varchar(50),
+    duration int,
+    match_date date,
+    club_id int,
+    stadium_id int,
+    foreign key (club_id) references club(club_id)
+        on delete cascade,
+    foreign key (stadium_id) references stadium(stadium_id)
+        on delete cascade
+) engine=InnoDB;
+
+
+================================
+1️⃣ DDL COMMANDS
+================================
+✅ CREATE TABLE (Already Done)
+
+(Example demo table)
+
+create table demo_table (
+    id int primary key auto_increment,
+    name varchar(50)
+);
+
+✅ ALTER TABLE
+alter table club add column club_email varchar(100);
+
+✅ DROP TABLE
+drop table demo_table;
+
+✅ TRUNCATE
+truncate table player_phone;
+
+================================
+2️⃣ DML COMMANDS
+================================
+✅ INSERT
+insert into club (club_name, founded_year, total_trophies, owner_name)
+values ('Manchester United', 1878, 66, 'Glazers');
+
+✅ UPDATE
+update club
+set total_trophies = 67
+where club_name = 'Manchester United';
+
+✅ DELETE
+delete from club
+where club_name = 'Manchester United';
+
+✅ SELECT
+select * from club;
+
+================================
+3️⃣ DCL COMMANDS
+================================
+✅ CREATE USER
+create user 'football_user'@'localhost' identified by '1234';
+
+✅ GRANT
+grant select, insert on football_db.* 
+to 'football_user'@'localhost';
+
+✅ REVOKE
+revoke insert on football_db.* 
+from 'football_user'@'localhost';
+
+================================
+4️⃣ TCL COMMANDS
+================================
+start transaction;
+
+update player set age = 30 where player_id = 1;
+
+savepoint before_second_update;
+
+update player set age = 28 where player_id = 2;
+
+rollback to before_second_update;
+
+commit;
+
+================================
+5️⃣ SQL CLAUSES
+================================
+WHERE
+select * from player where age > 25;
+
+GROUP BY
+select club_id, count(*) as total_players
+from player
+group by club_id;
+
+HAVING
+select club_id, count(*) as total_players
+from player
+group by club_id
+having count(*) > 1;
+
+ORDER BY
+select * from player order by age desc;
+
+DISTINCT
+select distinct city from player;
+
+LIKE
+select * from player where f_name like 'B%';
+
+IN
+select * from player where club_id in (1,2);
+
+BETWEEN
+select * from contract where salary between 20000 and 100000;
+
+================================
+6️⃣ JOINS
+================================
+INNER JOIN
+select p.f_name, c.club_name
+from player p
+inner join club c on p.club_id = c.club_id;
+
+LEFT JOIN
+select c.club_name, p.f_name
+from club c
+left join player p on c.club_id = p.club_id;
+
+RIGHT JOIN
+select c.club_name, p.f_name
+from club c
+right join player p on c.club_id = p.club_id;
+
+FULL JOIN (MySQL simulation)
+select c.club_name, p.f_name
+from club c
+left join player p on c.club_id = p.club_id
+union
+select c.club_name, p.f_name
+from club c
+right join player p on c.club_id = p.club_id;
+
+SELF JOIN
+select a.f_name as player1, b.f_name as player2
+from player a
+join player b
+on a.club_id = b.club_id
+and a.player_id <> b.player_id;
+
+================================
+7️⃣ VIEWS
+================================
+CREATE VIEW
+create view player_club_view as
+select p.player_id, p.f_name, p.l_name, c.club_name
+from player p
+join club c on p.club_id = c.club_id;
+
+UPDATE USING VIEW
+update player_club_view
+set f_name = 'UpdatedName'
+where player_id = 1;
+
+================================
+8️⃣ TRIGGERS
+================================
+BEFORE INSERT
+delimiter //
+
+create trigger before_player_insert
+before insert on player
+for each row
+begin
+    if new.age < 15 then
+        set new.age = 15;
+    end if;
+end//
+
+delimiter ;
+
+AFTER DELETE
+
+First create log table:
+
+create table player_log (
+    log_id int primary key auto_increment,
+    player_id int,
+    deleted_at datetime
+);
+
+
+Then trigger:
+
+delimiter //
+
+create trigger after_player_delete
+after delete on player
+for each row
+begin
+    insert into player_log(player_id, deleted_at)
+    values (old.player_id, now());
+end//
+
+delimiter ;
+
+================================
+9️⃣ CURSOR (Stored Procedure)
+================================
+delimiter //
+
+create procedure increase_salary()
+begin
+    declare done int default false;
+    declare cid int;
+    declare sal decimal(10,2);
+
+    declare cur cursor for 
+        select contract_id, salary from contract;
+
+    declare continue handler for not found set done = true;
+
+    open cur;
+
+    read_loop: loop
+        fetch cur into cid, sal;
+        if done then
+            leave read_loop;
+        end if;
+
+        update contract
+        set salary = sal * 1.10
+        where contract_id = cid;
+    end loop;
+
+    close cur;
+end//
+
+delimiter ;
+
+
+Run:
+
+call increase_salary();
+
+================================
+🔟 AGGREGATE FUNCTIONS
+================================
+select count(*) from player;
+select sum(salary) from contract;
+select avg(salary) from contract;
+select max(salary) from contract;
+select min(salary) from contract;
+
+================================
+1️⃣1️⃣ STRING FUNCTIONS
+================================
+select upper(f_name) from player;
+select lower(f_name) from player;
+select substring(f_name,1,3) from player;
+select length(f_name) from player;
+select concat(f_name,' ',l_name) from player;
+select trim('   Football   ');
+
+================================
+1️⃣2️⃣ DATE FUNCTIONS
+================================
+select current_date();
+
+select datediff(end_date, start_date) from contract;
+
+select extract(year from match_date) from match_info;
+
+select month(match_date) from match_info;
+
+select date_add(current_date(), interval 1 month);
+
+🎯 RESULT
+
+You now have:
+
+✔ All DDL
+✔ All DML
+✔ All DCL
+✔ All TCL
+✔ All clauses
+✔ All joins
+✔ Views
+✔ Triggers
+✔ Cursor
+✔ Aggregates
+✔ String functions
+✔ Date functions
+
+
