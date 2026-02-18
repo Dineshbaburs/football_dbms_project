@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>F.C. Manager - Players</title>
+    <title>Players - F.C. Manager</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -20,17 +20,21 @@
 
     <div class="main">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>Players (via SQL View)</h1>
-            <button class="btn-add" onclick="openModal('playerModal')">+ Add New Player</button>
+            <h1>Player Registry</h1>
+            <div class="admin-only">
+                <button class="btn-add" style="background:#64748b; margin-right:10px" onclick="undoAction()">↩ Undo
+                    Last</button>
+                <button class="btn-add" onclick="openModal('playerModal')">+ New Player</button>
+            </div>
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>Full Name</th>
+                    <th>Name</th>
                     <th>Age</th>
                     <th>Position</th>
-                    <th>Club Name</th>
-                    <th>Market Value</th>
+                    <th>Club</th>
+                    <th>Value</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -43,13 +47,12 @@
             <h3>Register Player</h3>
             <input type="text" id="f_name" placeholder="First Name">
             <input type="text" id="l_name" placeholder="Last Name">
-            <input type="number" id="age" placeholder="Age (Min 15)">
+            <input type="number" id="age" placeholder="Age">
             <input type="text" id="position" placeholder="Position">
-            <input type="text" id="nationality" placeholder="Nationality">
-            <input type="number" id="market_value" placeholder="Market Value (₹)">
+            <input type="number" id="market_value" placeholder="Value (₹)">
             <input type="number" id="club_id" placeholder="Club ID">
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button onclick="savePlayer()" style="flex:1">Save to DB</button>
+                <button onclick="savePlayer()" style="flex:1">Save</button>
                 <button class="danger" onclick="closeModal('playerModal')" style="flex:1">Cancel</button>
             </div>
         </div>

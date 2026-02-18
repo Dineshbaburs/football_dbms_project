@@ -7,10 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ===================================================
-   DATABASE CONNECTION POOL
-   (Configured for Docker/Linux/Windows via .env)
-=================================================== */
 const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -21,135 +17,91 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-/* ===================================================
-   AUTH MODULE (Admin vs User Roles)
-=================================================== */
+/* --- AUTHENTICATION MODULE --- */
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    // Standard academic roles
     if (username === 'admin' && password === 'admin') {
         res.json({ role: 'admin' });
     } else if (username === 'user' && password === 'user') {
         res.json({ role: 'user' });
     } else {
-        res.status(401).json({ error: "Invalid Credentials. Use admin/admin or user/user" });
+        res.status(401).json({ error: "Invalid credentials" });
     }
 });
 
-/* ===================================================
-   DASHBOARD (Aggregate & Date Functions)
-=================================================== */
-app.get('/dashboard-summary', async (req, res) => {
-    try {
-        const [pCount] = await db.query("SELECT COUNT(*) AS total FROM player");
-        const [cCount] = await db.query("SELECT COUNT(*) AS total FROM club");
-        // Using SUM and AVG (Aggregate functions) from the contract table
-        const [stats] = await db.query("SELECT SUM(salary) AS totalBudget, AVG(salary) AS avgSalary FROM contract");
-
-        res.json({
-            totalPlayers: pCount[0].total,
-            totalClubs: cCount[0].total,
-            totalBudget: stats[0].totalBudget || 0,
-            avgSalary: stats[0].avgSalary || 0
-        });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-/* ===================================================
-   PLAYERS MODULE (Using the SQL VIEW)
-=================================================== */
-// This satisfies the "VIEW" requirement of your project
+/* --- PLAYERS MODULE (SQL View & Stored Procedure) --- */
 app.get('/players', async (req, res) => {
     try {
+        // Now selecting from the updated View that includes market_value
         const [data] = await db.query("SELECT * FROM player_club_view");
         res.json(data);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/players', async (req, res) => {
-    const { f_name, l_name, age, position, nationality, market_value, club_id } = req.body;
     try {
-        // Trigger Check: The 'before_player_insert' trigger in your SQL 
-        // will throw an error if age < 15. We catch that here.
-        const sql = "INSERT INTO player (f_name, l_name, age, position, nationality, market_value, club_id) VALUES (?,?,?,?,?,?,?)";
-        await db.query(sql, [f_name, l_name, age, position, nationality, market_value, club_id]);
-        res.json({ message: "Player added successfully" });
-    } catch (err) {
-        res.status(400).json({ error: "DB Error: " + err.message });
-    }
+        const { f_name, l_name, age, position, market_value, club_id } = req.body;
+        const sql = `INSERT INTO player (f_name, l_name, age, position, market_value, club_id) VALUES (?, ?, ?, ?, ?, ?)`;
+        await db.query(sql, [f_name, l_name, age, position, market_value || 0, club_id]);
+        res.json({ message: "Player registered! Trigger checked age constraints." });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Implementation of the "Undo" requirement
+app.post('/players/undo', async (req, res) => {
+    try {
+        await db.query("CALL undo_last_player_insert()");
+        res.json({ message: "Last registration undone via Stored Procedure" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.delete('/players/:id', async (req, res) => {
     try {
-        // The 'after_player_delete' trigger will automatically log this in player_log
-        await db.query("DELETE FROM player WHERE player_id = ?", [req.params.id]);
-        res.json({ message: "Player deleted. Action logged in audit table via Trigger." });
+        await db.query("DELETE FROM player WHERE player_id=?", [req.params.id]);
+        res.json({ message: "Player removed and logged via Trigger" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-/* ===================================================
-   CONTRACTS MODULE (Using the CURSOR / PROCEDURE)
-=================================================== */
+/* --- DASHBOARD & REPORTS (Aggregate Functions) --- */
+app.get('/dashboard-summary', async (req, res) => {
+    try {
+        const [p] = await db.query("SELECT COUNT(*) AS count FROM player");
+        const [c] = await db.query("SELECT COUNT(*) AS count FROM club");
+        const [val] = await db.query("SELECT SUM(market_value) AS total, AVG(market_value) as avg FROM player");
+        res.json({
+            totalPlayers: p[0].count,
+            totalClubs: c[0].count,
+            totalValue: val[0].total || 0,
+            avgSalary: val[0].avg || 0
+        });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+/* --- OTHER ENTITIES --- */
+app.get('/clubs', async (req, res) => {
+    try { const [data] = await db.query("SELECT * FROM club"); res.json(data); } catch (err) { res.status(500).json(err); }
+});
+
 app.get('/contracts', async (req, res) => {
     try {
-        const sql = `
-            SELECT c.*, p.f_name, p.l_name 
-            FROM contract c 
-            JOIN player p ON c.player_id = p.player_id
-        `;
-        const [data] = await db.query(sql);
+        const [data] = await db.query("SELECT c.*, p.f_name, p.l_name FROM contract c JOIN player p ON c.player_id = p.player_id");
         res.json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { res.status(500).json(err); }
 });
 
-// This route calls the row-by-row CURSOR procedure
 app.post('/contracts/increase-salaries', async (req, res) => {
     try {
         await db.query("CALL increase_salary()");
-        res.json({ message: "Success: All salaries increased by 10% using row-by-row Cursor processing." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+        res.json({ message: "Success: Cursor processed all rows to hike salaries by 10%." });
+    } catch (err) { res.status(500).json(err); }
 });
 
-/* ===================================================
-   CLUBS & STADIUMS
-=================================================== */
-app.get('/clubs', async (req, res) => {
-    try {
-        const [data] = await db.query("SELECT * FROM club");
-        res.json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-app.get('/stadiums', async (req, res) => {
-    try {
-        const [data] = await db.query("SELECT * FROM stadium");
-        res.json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-/* ===================================================
-   MATCHES MODULE (Joins & String Functions)
-=================================================== */
 app.get('/matches', async (req, res) => {
     try {
-        const sql = `
-            SELECT m.match_id, m.match_date, UPPER(m.match_type) as type, 
-                   c.club_name, s.stadium_name
-            FROM match_info m
-            JOIN club c ON m.club_id = c.club_id
-            JOIN stadium s ON m.stadium_id = s.stadium_id
-            ORDER BY m.match_date DESC
-        `;
+        const sql = `SELECT m.*, c.club_name, s.stadium_name FROM match_info m JOIN club c ON m.club_id = c.club_id JOIN stadium s ON m.stadium_id = s.stadium_id`;
         const [data] = await db.query(sql);
         res.json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { res.status(500).json(err); }
 });
 
-/* ===================================================
-   START SERVER
-=================================================== */
-const PORT = process.env.PORT || 8081;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server fully operational on port ${PORT}`);
-    console.log(`🔗 Connected to database: ${process.env.DB_NAME || 'football_db'}`);
-});
+app.listen(8081, '0.0.0.0', () => console.log("🚀 Server running on port 8081"));

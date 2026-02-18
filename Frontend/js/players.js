@@ -10,17 +10,17 @@ async function loadPlayers() {
             table.innerHTML += `
             <tr>
                 <td>${p.f_name} ${p.l_name}</td>
-                <td>${p.age}</td>
-                <td>${p.position}</td>
-                <td>${p.club_name}</td>
+                <td>${p.age || 'N/A'}</td>
+                <td>${p.position || 'N/A'}</td>
+                <td>${p.club_name || 'Free Agent'}</td>
                 <td>₹${Number(p.market_value || 0).toLocaleString()}</td>
                 <td>
                     <button class="danger" onclick="deletePlayer(${p.player_id})">Delete</button>
                 </td>
             </tr>`;
         });
-        if (window.checkPermissions) checkPermissions();
-    } catch (e) { console.error(e); }
+        checkPermissions();
+    } catch (e) { console.error("View Load Error:", e); }
 }
 
 async function savePlayer() {
@@ -32,17 +32,26 @@ async function savePlayer() {
         market_value: document.getElementById("market_value").value,
         club_id: document.getElementById("club_id").value
     };
-
     try {
         await API.request('/players', { method: 'POST', body: JSON.stringify(payload) });
-        alert("Success! Trigger checked the age constraint.");
+        alert("Success! Trigger verified registration.");
         closeModal('playerModal');
         loadPlayers();
     } catch (e) { alert("Error: " + e.message); }
 }
 
+async function undoAction() {
+    if (confirm("Undo the last registration? (Stored Procedure call)")) {
+        try {
+            const res = await API.request('/players/undo', { method: 'POST' });
+            alert(res.message);
+            loadPlayers();
+        } catch (e) { alert(e.message); }
+    }
+}
+
 async function deletePlayer(id) {
-    if (confirm("Delete player? This will be logged via SQL Trigger.")) {
+    if (confirm("Delete player? (Audit Trigger will log this)")) {
         await API.request(`/players/${id}`, { method: 'DELETE' });
         loadPlayers();
     }
