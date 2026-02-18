@@ -1,20 +1,20 @@
-document.addEventListener("DOMContentLoaded", loadDashboard);
-
-async function loadDashboard() {
+document.addEventListener("DOMContentLoaded", async () => {
     try {
         const stats = await API.request('/dashboard-summary');
 
-        // Update the UI with aggregated data
+        // Mapping Backend variables to HTML IDs
         document.getElementById("totalPlayers").innerText = stats.totalPlayers || 0;
         document.getElementById("totalClubs").innerText = stats.totalClubs || 0;
-        document.getElementById("totalValue").innerText = `₹${Number(stats.totalBudget).toLocaleString()}`;
 
-        // Use of Aggregate Functions (AVG) from the backend
-        const avgEl = document.getElementById("avgSalary");
-        if (avgEl) {
-            avgEl.innerText = `Average Salary: ₹${Math.round(stats.avgSalary).toLocaleString()}`;
-        }
-    } catch (err) {
-        console.error("Dashboard failed to load:", err);
+        // Formatting currency for the "Total Budget" (SUM aggregate requirement)
+        const budget = stats.totalBudget || 0;
+        document.getElementById("totalValue").innerText = `₹${Number(budget).toLocaleString()}`;
+
+        // Showing Average Salary (AVG aggregate requirement)
+        const avg = stats.avgSalary || 0;
+        document.getElementById("avgSalary").innerText = `Avg: ₹${Math.round(avg).toLocaleString()}`;
+
+    } catch (e) {
+        console.error("Dashboard Load Error:", e);
     }
-}
+});

@@ -3,39 +3,40 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Football DBMS Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="sidebar">
-        <h2>DBMS Project</h2>
-        <a onclick="go('dashboard.html')" class="active">Dashboard</a>
-        <a onclick="go('players.html')">Players</a>
-        <a onclick="go('clubs.html')">Clubs</a>
-        <a onclick="go('contracts.html')">Contracts</a>
-        <a onclick="go('matches.html')">Matches</a>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+        <h2>Admin Panel</h2>
+        <a onclick="go('dashboard.html')">🏠 Dashboard</a>
+        <a onclick="go('players.html')">🏃 Players</a>
+        <a onclick="go('clubs.html')">🛡️ Clubs</a>
+        <a onclick="go('contracts.html')">📜 Contracts</a>
+        <a onclick="go('matches.html')">⚽ Matches</a>
+        <hr>
+        <button class="danger" style="width:100%" onclick="logout()">Logout</button>
     </div>
 
     <div class="main">
-        <h1>Overview Statistics</h1>
+        <h1>System Overview</h1>
         <div class="stats-grid">
             <div class="card">
                 <h3>Total Players</h3>
-                <p id="totalPlayers">0</p>
+                <p id="totalPlayers">...</p>
             </div>
             <div class="card">
-                <h3>Active Clubs</h3>
-                <p id="totalClubs">0</p>
+                <h3>Total Clubs</h3>
+                <p id="totalClubs">...</p>
             </div>
             <div class="card">
-                <h3>Total Market Value</h3>
-                <p id="totalValue">₹0</p>
+                <h3>League Valuation</h3>
+                <p id="totalValue">...</p>
             </div>
             <div class="card">
-                <h3>Salary Analysis</h3>
-                <p id="avgSalary">Avg: ₹0</p>
+                <h3>Market Health</h3>
+                <p id="avgSalary">...</p>
             </div>
         </div>
     </div>
