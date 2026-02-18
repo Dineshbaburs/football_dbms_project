@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:latest
+    container_name: football_db_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: football_db
+      MYSQL_USER: football_user
+      MYSQL_PASSWORD: football_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./football_db.sql:/docker-entrypoint-initdb.d/football_db.sql
+
+  backend:
+    build: ./backend
+    container_name: football_backend
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=db
+      - DB_USER=football_user
+      - DB_PASSWORD=football_pass
+      - DB_NAME=football_db
+    depends_on:
+      - db

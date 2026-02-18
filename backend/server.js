@@ -1,222 +1,248 @@
+require('dotenv').config(); // Loads credentials from your .env file
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise'); // Modernized for better performance
 const cors = require('cors');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ================= DATABASE ================= */
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'football_db'
+/* ===================================================
+   DATABASE CONNECTION POOL
+   (Required for deployment and cross-platform stability)
+=================================================== */
+const db = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'football_db',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect(err => {
-    if (err) console.log("DB ERROR:", err);
-    else console.log("Connected to MySQL");
-});
+// Test connection on server start
+db.getConnection()
+    .then(conn => {
+        console.log("✅ Database Connected Successfully (Pool Initialized)");
+        conn.release();
+    })
+    .catch(err => {
+        console.error("❌ DB CONNECTION ERROR:", err.message);
+        console.log("Check your .env file and ensure MariaDB/MySQL is running.");
+    });
 
 /* ===================================================
    PLAYERS APIs
 =================================================== */
 
-// Get all players
-app.get('/players', (req, res) => {
-    const sql = `
-        select p.*, c.club_name
-        from player p
-        left join club c on p.club_id = c.club_id
-    `;
-    db.query(sql, (err, data) => {
-        if (err) return res.status(500).json(err);
+// Get all players with club names
+app.get('/players', async (req, res) => {
+    try {
+        const sql = `
+            SELECT p.*, c.club_name
+            FROM player p
+            LEFT JOIN club c ON p.club_id = c.club_id
+        `;
+        const [data] = await db.query(sql);
         res.json(data);
-    });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Get players by club
-app.get('/players/byclub/:id', (req, res) => {
-    db.query(
-        "select * from player where club_id=?",
-        [req.params.id],
-        (err, data) => res.json(data)
-    );
+// Get players by specific club
+app.get('/players/byclub/:id', async (req, res) => {
+    try {
+        const [data] = await db.query("SELECT * FROM player WHERE club_id=?", [req.params.id]);
+        res.json(data);
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Add player
-app.post('/players', (req, res) => {
-    const sql = `
-        insert into player 
-        (f_name, l_name, position, club_id, market_value)
-        values (?,?,?,?,?)
-    `;
-    const values = [
-        req.body.f_name,
-        req.body.l_name,
-        req.body.position,
-        req.body.club_id,
-        req.body.market_value
-    ];
-    db.query(sql, values, (err) => {
-        if (err) return res.status(500).json(err);
-        res.json({message:"Player added"});
-    });
+// Add a new player
+app.post('/players', async (req, res) => {
+    try {
+        const { f_name, l_name, position, club_id, market_value } = req.body;
+        const sql = `
+            INSERT INTO player (f_name, l_name, position, club_id, market_value)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        await db.query(sql, [f_name, l_name, position, club_id, market_value]);
+        res.json({ message: "Player added successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Update player
-app.put('/players/:id', (req, res) => {
-    const sql = `
-        update player
-        set position=?, club_id=?, market_value=?, status=?
-        where player_id=?
-    `;
-    db.query(sql, [
-        req.body.position,
-        req.body.club_id,
-        req.body.market_value,
-        req.body.status,
-        req.params.id
-    ], () => res.json({message:"Player updated"}));
+// Update an existing player
+app.put('/players/:id', async (req, res) => {
+    try {
+        const { position, club_id, market_value, status } = req.body;
+        const sql = `
+            UPDATE player
+            SET position=?, club_id=?, market_value=?, status=?
+            WHERE player_id=?
+        `;
+        await db.query(sql, [position, club_id, market_value, status, req.params.id]);
+        res.json({ message: "Player updated successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Delete player
-app.delete('/players/:id', (req, res) => {
-    db.query("delete from player where player_id=?", [req.params.id],
-        () => res.json({message:"Player deleted"})
-    );
+// Delete a player
+app.delete('/players/:id', async (req, res) => {
+    try {
+        await db.query("DELETE FROM player WHERE player_id=?", [req.params.id]);
+        res.json({ message: "Player deleted successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 /* ===================================================
    CLUB APIs
 =================================================== */
 
-app.get('/clubs', (req, res) => {
-    db.query("select * from club", (err, data) => res.json(data));
+// Get all clubs
+app.get('/clubs', async (req, res) => {
+    try {
+        const [data] = await db.query("SELECT * FROM club");
+        res.json(data);
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/clubs', (req, res) => {
-    const sql = `
-        insert into club 
-        (club_name, founded_year, country, budget, manager_name)
-        values (?,?,?,?,?)
-    `;
-    db.query(sql, [
-        req.body.club_name,
-        req.body.founded_year,
-        req.body.country,
-        req.body.budget,
-        req.body.manager_name
-    ], () => res.json({message:"Club added"}));
+// Add a new club
+app.post('/clubs', async (req, res) => {
+    try {
+        const { club_name, founded_year, country, budget, manager_name } = req.body;
+        const sql = `
+            INSERT INTO club (club_name, founded_year, country, budget, manager_name)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        await db.query(sql, [club_name, founded_year, country, budget, manager_name]);
+        res.json({ message: "Club added successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.put('/clubs/:id', (req, res) => {
-    db.query(
-        "update club set club_name=?, budget=? where club_id=?",
-        [req.body.club_name, req.body.budget, req.params.id],
-        () => res.json({message:"Club updated"})
-    );
+// Update a club
+app.put('/clubs/:id', async (req, res) => {
+    try {
+        const { club_name, budget } = req.body;
+        await db.query("UPDATE club SET club_name=?, budget=? WHERE club_id=?", [club_name, budget, req.params.id]);
+        res.json({ message: "Club updated successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/clubs/:id', (req, res) => {
-    db.query("delete from club where club_id=?", [req.params.id],
-        () => res.json({message:"Club deleted"})
-    );
+// Delete a club
+app.delete('/clubs/:id', async (req, res) => {
+    try {
+        await db.query("DELETE FROM club WHERE club_id=?", [req.params.id]);
+        res.json({ message: "Club deleted successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 /* ===================================================
    STADIUM APIs
 =================================================== */
 
-app.get('/stadiums', (req, res) => {
-    db.query("select * from stadium", (err, data) => res.json(data));
+app.get('/stadiums', async (req, res) => {
+    try {
+        const [data] = await db.query("SELECT * FROM stadium");
+        res.json(data);
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/stadiums', (req, res) => {
-    db.query(
-        "insert into stadium (stadium_name, city, capacity) values (?,?,?)",
-        [req.body.stadium_name, req.body.city, req.body.capacity],
-        () => res.json({message:"Stadium added"})
-    );
+app.post('/stadiums', async (req, res) => {
+    try {
+        const { stadium_name, city, capacity } = req.body;
+        await db.query("INSERT INTO stadium (stadium_name, city, capacity) VALUES (?,?,?)", [stadium_name, city, capacity]);
+        res.json({ message: "Stadium added successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/stadiums/:id', async (req, res) => {
+    try {
+        await db.query("DELETE FROM stadium WHERE stadium_id=?", [req.params.id]);
+        res.json({ message: "Stadium deleted" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 /* ===================================================
    MATCH APIs
 =================================================== */
 
-app.get('/matches', (req, res) => {
-    const sql = `
-        select m.*, 
-        c1.club_name as home_team,
-        c2.club_name as away_team
-        from match_info m
-        left join club c1 on m.home_club = c1.club_id
-        left join club c2 on m.away_club = c2.club_id
-    `;
-    db.query(sql, (err, data) => res.json(data));
+app.get('/matches', async (req, res) => {
+    try {
+        const sql = `
+            SELECT m.*, 
+            c1.club_name AS home_team,
+            c2.club_name AS away_team
+            FROM match_info m
+            LEFT JOIN club c1 ON m.home_club = c1.club_id
+            LEFT JOIN club c2 ON m.away_club = c2.club_id
+        `;
+        const [data] = await db.query(sql);
+        res.json(data);
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/matches', (req, res) => {
-    const sql = `
-        insert into match_info
-        (match_type, match_date, home_club, away_club, stadium_id)
-        values (?,?,?,?,?)
-    `;
-    db.query(sql, [
-        req.body.match_type,
-        req.body.match_date,
-        req.body.home_club,
-        req.body.away_club,
-        req.body.stadium_id
-    ], () => res.json({message:"Match added"}));
+app.post('/matches', async (req, res) => {
+    try {
+        const { match_type, match_date, home_club, away_club, stadium_id } = req.body;
+        const sql = `
+            INSERT INTO match_info (match_type, match_date, home_club, away_club, stadium_id)
+            VALUES (?,?,?,?,?)
+        `;
+        await db.query(sql, [match_type, match_date, home_club, away_club, stadium_id]);
+        res.json({ message: "Match added successfully" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/matches/:id', async (req, res) => {
+    try {
+        await db.query("DELETE FROM match_info WHERE match_id=?", [req.params.id]);
+        res.json({ message: "Match deleted" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 /* ===================================================
-   DASHBOARD SUMMARY
+   ANALYTICS & REPORTS
 =================================================== */
 
-app.get('/dashboard-summary', (req, res) => {
-    const summary = {};
+// Dashboard Stats (Calculated in parallel for speed)
+app.get('/dashboard-summary', async (req, res) => {
+    try {
+        const [pCount] = await db.query("SELECT COUNT(*) AS totalPlayers FROM player");
+        const [cCount] = await db.query("SELECT COUNT(*) AS totalClubs FROM club");
+        const [vSum] = await db.query("SELECT SUM(market_value) AS totalValue FROM player");
+        const [highest] = await db.query(`
+            SELECT CONCAT(f_name,' ',l_name) AS name, market_value
+            FROM player
+            ORDER BY market_value DESC
+            LIMIT 1
+        `);
 
-    db.query("select count(*) as totalPlayers from player", (e,d)=>{
-        summary.totalPlayers = d[0].totalPlayers;
-
-        db.query("select count(*) as totalClubs from club", (e2,d2)=>{
-            summary.totalClubs = d2[0].totalClubs;
-
-            db.query("select sum(market_value) as totalValue from player", (e3,d3)=>{
-                summary.totalValue = d3[0].totalValue || 0;
-
-                db.query(`
-                    select concat(f_name,' ',l_name) as name, market_value
-                    from player
-                    order by market_value desc
-                    limit 1
-                `,(e4,d4)=>{
-                    summary.highestPaid = d4[0] || null;
-                    res.json(summary);
-                });
-            });
+        res.json({
+            totalPlayers: pCount[0].totalPlayers,
+            totalClubs: cCount[0].totalClubs,
+            totalValue: vSum[0].totalValue || 0,
+            highestPaid: highest[0] || null
         });
-    });
+    } catch (err) { res.status(500).json({ error: "Summary failed", details: err.message }); }
+});
+
+// Club Report: Player count per club
+app.get('/reports', async (req, res) => {
+    try {
+        const sql = `
+            SELECT c.club_name, COUNT(p.player_id) AS total
+            FROM club c
+            LEFT JOIN player p ON c.club_id = p.club_id
+            GROUP BY c.club_name
+        `;
+        const [data] = await db.query(sql);
+        res.json(data);
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 /* ===================================================
-   REPORTS
+   SERVER START
 =================================================== */
-
-app.get('/reports', (req, res) => {
-    const sql = `
-        select c.club_name, count(p.player_id) as total
-        from club c
-        left join player p on c.club_id = p.club_id
-        group by c.club_name
-    `;
-    db.query(sql, (err, data) => res.json(data));
+const PORT = process.env.PORT || 8081;
+app.listen(PORT, () => {
+    console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
-
-/* =================================================== */
-
-app.listen(8081, () => console.log("Server running on port 8081"));
