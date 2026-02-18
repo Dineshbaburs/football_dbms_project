@@ -1,17 +1,31 @@
 async function login() {
-    const usernameInput = document.getElementById("username").value;
-    const passwordInput = document.getElementById("password").value;
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+
+    // We use the dynamic BASE_URL from api.js if available, 
+    // otherwise we hardcode the Docker mapping for this test.
+    const targetUrl = 'http://localhost:8081/login';
 
     try {
-        const result = await API.request('/login', {
+        const response = await fetch(targetUrl, {
             method: 'POST',
-            body: JSON.stringify({ username: usernameInput, password: passwordInput })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
         });
 
-        // Store role for permission handling
-        localStorage.setItem('role', result.role);
+        if (!response.ok) {
+            throw new Error("Invalid username or password");
+        }
+
+        const data = await response.json();
+
+        // DBMS Requirement: Store role for Admin/User modules
+        localStorage.setItem('role', data.role);
+        console.log("Login successful, role:", data.role);
+
         window.location.href = "dashboard.html";
     } catch (err) {
-        alert("Login Failed: " + err.message + "\nTry admin/admin or user/user");
+        console.error("Connection Error:", err);
+        alert("Login Failed: Make sure the Backend is running and credentials are correct (admin/admin).");
     }
 }

@@ -149,7 +149,7 @@ app.get('/matches', async (req, res) => {
    START SERVER
 =================================================== */
 const PORT = process.env.PORT || 8081;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server fully operational on port ${PORT}`);
     console.log(`🔗 Connected to database: ${process.env.DB_NAME || 'football_db'}`);
 });
