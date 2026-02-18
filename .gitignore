@@ -1,9 +1,5 @@
-# Dependency folders
 node_modules/
-
-# Environment secrets (Important!)
+backend/node_modules/
 .env
-
-# Linux/System files
 .DS_Store
 *.log

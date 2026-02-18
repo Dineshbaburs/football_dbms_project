@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   db:
     image: mariadb:latest
@@ -20,10 +19,10 @@ services:
     container_name: football_backend
     ports:
       - "8081:8081"
+    depends_on:
+      - db
     environment:
       - DB_HOST=db
       - DB_USER=football_user
       - DB_PASSWORD=football_pass
       - DB_NAME=football_db
-    depends_on:
-      - db
