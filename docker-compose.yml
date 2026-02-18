@@ -1,5 +1,17 @@
 version: '3.8'
 services:
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: football_phpmyadmin
+    links:
+      - db
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+      PMA_ARBITRARY: 1
+      
   db:
     image: mariadb:latest
     container_name: football_db_container
