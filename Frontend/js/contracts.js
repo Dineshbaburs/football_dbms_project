@@ -3,34 +3,27 @@ document.addEventListener("DOMContentLoaded", loadContracts);
 async function loadContracts() {
     try {
         const data = await API.request('/contracts');
-        const contractTable = document.getElementById("contractTable");
-        contractTable.innerHTML = "";
+        const table = document.getElementById("contractTable");
+        table.innerHTML = "";
 
         data.forEach(c => {
-            contractTable.innerHTML += `
+            table.innerHTML += `
             <tr>
                 <td>${c.f_name} ${c.l_name}</td>
                 <td>${new Date(c.start_date).toLocaleDateString()}</td>
                 <td>₹${Number(c.salary).toLocaleString()}</td>
-                <td>Active</td>
+                <td><span style="color:green">● Active</span></td>
             </tr>`;
         });
-    } catch (err) {
-        console.error("Failed to load contracts:", err);
-    }
+    } catch (e) { console.error(e); }
 }
 
-/**
- * DBMS Concept: Demonstrates row-by-row processing via SQL Cursor
- */
 async function runAnnualRaise() {
-    if (confirm("Are you sure you want to run the SQL Procedure?\nThis uses a CURSOR to increase all salaries by 10% row-by-row.")) {
+    if (confirm("Run Cursor? This iterates through every contract and hikes salaries by 10%.")) {
         try {
             const res = await API.request('/contracts/increase-salaries', { method: 'POST' });
             alert(res.message);
-            loadContracts(); // Refresh to see the new salaries
-        } catch (err) {
-            alert("Procedure failed: " + err.message);
-        }
+            loadContracts();
+        } catch (e) { alert(e.message); }
     }
 }

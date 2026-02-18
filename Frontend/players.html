@@ -3,24 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Manage Players</title>
+    <title>F.C. Manager - Players</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div class="sidebar">
+        <h2>F.C. Manager</h2>
+        <a onclick="go('dashboard.html')" id="nav-dash">🏠 Dashboard</a>
+        <a onclick="go('players.html')" id="nav-players">🏃 Players</a>
+        <a onclick="go('clubs.html')" id="nav-clubs">🛡️ Clubs</a>
+        <a onclick="go('contracts.html')" id="nav-contracts">📜 Contracts</a>
+        <a onclick="go('matches.html')" id="nav-matches">⚽ Matches</a>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+
     <div class="main">
-        <div class="header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <h1>Players (via SQL View)</h1>
-            <button class="btn-add" onclick="openModal('playerModal')">+ Add Player</button>
+            <button class="btn-add" onclick="openModal('playerModal')">+ Add New Player</button>
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>Full Name</th>
                     <th>Age</th>
                     <th>Position</th>
-                    <th>Club</th>
-                    <th>Value</th>
+                    <th>Club Name</th>
+                    <th>Market Value</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -30,17 +40,17 @@
 
     <div id="playerModal" class="modal">
         <div class="modal-content">
-            <h3>Add New Player</h3>
+            <h3>Register Player</h3>
             <input type="text" id="f_name" placeholder="First Name">
             <input type="text" id="l_name" placeholder="Last Name">
-            <input type="number" id="age" placeholder="Age (Trigger: min 15)">
+            <input type="number" id="age" placeholder="Age (Min 15)">
             <input type="text" id="position" placeholder="Position">
             <input type="text" id="nationality" placeholder="Nationality">
-            <input type="number" id="market_value" placeholder="Market Value">
+            <input type="number" id="market_value" placeholder="Market Value (₹)">
             <input type="number" id="club_id" placeholder="Club ID">
-            <div class="modal-btns">
-                <button onclick="savePlayer()">Save</button>
-                <button class="danger" onclick="closeModal('playerModal')">Cancel</button>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="savePlayer()" style="flex:1">Save to DB</button>
+                <button class="danger" onclick="closeModal('playerModal')" style="flex:1">Cancel</button>
             </div>
         </div>
     </div>

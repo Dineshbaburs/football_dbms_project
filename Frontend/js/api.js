@@ -7,13 +7,11 @@ const API = {
                 headers: { 'Content-Type': 'application/json' },
                 ...options
             });
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error || "Server Error");
-            }
-            return await response.json();
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Server error");
+            return data;
         } catch (err) {
-            console.error("Fetch failed:", err);
+            console.error("API Error:", err.message);
             throw err;
         }
     }

@@ -1,33 +1,19 @@
-document.addEventListener("DOMContentLoaded", loadClubs);
-
-/**
- * DBMS Concept: Multi-table relational display
- */
-async function loadClubs() {
+document.addEventListener("DOMContentLoaded", async () => {
     try {
         const data = await API.request('/clubs');
-        const clubTable = document.getElementById("clubTable");
-
-        if (!clubTable) return; // Guard clause
-        clubTable.innerHTML = "";
+        const table = document.getElementById("clubTable");
+        table.innerHTML = "";
 
         data.forEach(c => {
-            clubTable.innerHTML += `
+            table.innerHTML += `
             <tr>
                 <td>${c.club_name}</td>
-                <td>${c.country || 'N/A'}</td>
-                <td>${c.manager_name || 'Unassigned'}</td>
-                <td>${c.founded_year || 'Unknown'}</td>
-                <td>
-                    <button class="danger" disabled title="DBMS: Restricted by Foreign Key">Delete</button>
-                </td>
+                <td>${c.founded_year}</td>
+                <td>${c.total_trophies}</td>
+                <td>${c.owner_name}</td>
+                <td><button disabled title="FK Constraints Active">Protected</button></td>
             </tr>`;
         });
-
-        // Apply Admin/User role restrictions
-        if (typeof checkPermissions === "function") checkPermissions();
-
-    } catch (err) {
-        console.error("Failed to load clubs:", err);
-    }
-}
+        if (window.checkPermissions) checkPermissions();
+    } catch (e) { console.error(e); }
+});

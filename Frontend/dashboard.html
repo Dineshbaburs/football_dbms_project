@@ -3,20 +3,20 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Football DBMS Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F.C. Manager - Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="sidebar">
-        <h2>Admin Panel</h2>
-        <a onclick="go('dashboard.html')">🏠 Dashboard</a>
-        <a onclick="go('players.html')">🏃 Players</a>
-        <a onclick="go('clubs.html')">🛡️ Clubs</a>
-        <a onclick="go('contracts.html')">📜 Contracts</a>
-        <a onclick="go('matches.html')">⚽ Matches</a>
-        <hr>
-        <button class="danger" style="width:100%" onclick="logout()">Logout</button>
+        <h2>F.C. Manager</h2>
+        <a onclick="go('dashboard.html')" id="nav-dash">🏠 Dashboard</a>
+        <a onclick="go('players.html')" id="nav-players">🏃 Players</a>
+        <a onclick="go('clubs.html')" id="nav-clubs">🛡️ Clubs</a>
+        <a onclick="go('contracts.html')" id="nav-contracts">📜 Contracts</a>
+        <a onclick="go('matches.html')" id="nav-matches">⚽ Matches</a>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </div>
 
     <div class="main">
@@ -35,7 +35,7 @@
                 <p id="totalValue">...</p>
             </div>
             <div class="card">
-                <h3>Market Health</h3>
+                <h3>Avg Market Value</h3>
                 <p id="avgSalary">...</p>
             </div>
         </div>

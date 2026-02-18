@@ -3,28 +3,39 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Player Contracts</title>
+    <title>F.C. Manager - Contracts</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div class="sidebar">
+        <h2>F.C. Manager</h2>
+        <a onclick="go('dashboard.html')" id="nav-dash">🏠 Dashboard</a>
+        <a onclick="go('players.html')" id="nav-players">🏃 Players</a>
+        <a onclick="go('clubs.html')" id="nav-clubs">🛡️ Clubs</a>
+        <a onclick="go('contracts.html')" id="nav-contracts">📜 Contracts</a>
+        <a onclick="go('matches.html')" id="nav-matches">⚽ Matches</a>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+
     <div class="main">
-        <div class="header">
-            <h1>Contracts Management</h1>
-            <button class="btn-add admin-only" onclick="runAnnualRaise()">Run Cursor: 10% Salary Hike</button>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Financial Contracts</h1>
+            <button class="btn-add admin-only" onclick="runAnnualRaise()">🚀 Run Cursor: 10% Hike</button>
         </div>
         <table>
             <thead>
                 <tr>
                     <th>Player</th>
                     <th>Start Date</th>
-                    <th>Annual Salary</th>
+                    <th>Annual Salary (₹)</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody id="contractTable"></tbody>
         </table>
     </div>
+
     <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/contracts.js"></script>

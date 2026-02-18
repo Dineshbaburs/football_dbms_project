@@ -1,58 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <title>F.C. Manager - Matches</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <div class="sidebar">
+        <h2>F.C. Manager</h2>
+        <a onclick="go('dashboard.html')" id="nav-dash">🏠 Dashboard</a>
+        <a onclick="go('players.html')" id="nav-players">🏃 Players</a>
+        <a onclick="go('clubs.html')" id="nav-clubs">🛡️ Clubs</a>
+        <a onclick="go('contracts.html')" id="nav-contracts">📜 Contracts</a>
+        <a onclick="go('matches.html')" id="nav-matches">⚽ Matches</a>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
 
-<div class="layout">
-<aside class="sidebar">
-<h2>⚽ ERP</h2>
-<ul>
-<li onclick="go('dashboard.html')">Dashboard</li>
-<li onclick="go('players.html')">Players</li>
-<li onclick="go('clubs.html')">Clubs</li>
-<li onclick="go('stadiums.html')">Stadiums</li>
-<li class="active">Matches</li>
-<li onclick="go('contracts.html')">Contracts</li>
-</ul>
-</aside>
+    <div class="main">
+        <h1>Match Schedule</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Match Type</th>
+                    <th>Assigned Club</th>
+                    <th>Stadium</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="matchTable"></tbody>
+        </table>
+    </div>
 
-<main class="main">
-<h1>Match Management</h1>
-<button onclick="openModal('matchModal')">+ Schedule Match</button>
-
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Type</th>
-<th>Home</th>
-<th>Away</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="matchTable"></tbody>
-</table>
-</main>
-</div>
-
-<div class="modal" id="matchModal">
-<div class="modal-content">
-<input id="match_type" placeholder="Match Type">
-<input id="match_date" type="date">
-<input id="home_club" placeholder="Home Club ID">
-<input id="away_club" placeholder="Away Club ID">
-<input id="stadium_id_m" placeholder="Stadium ID">
-<input id="status" placeholder="Status">
-<button onclick="saveMatch()">Save</button>
-<button onclick="closeModal('matchModal')" class="danger">Cancel</button>
-</div>
-</div>
-
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/matches.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/matches.js"></script>
 </body>
+
 </html>
