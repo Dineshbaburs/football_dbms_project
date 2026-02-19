@@ -1,6 +1,5 @@
 version: '3.8'
 services:
-
   phpmyadmin:
     image: phpmyadmin
     container_name: football_phpmyadmin
@@ -11,7 +10,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_ARBITRARY: 1
-      
+
   db:
     image: mariadb:latest
     container_name: football_db_container
@@ -22,19 +21,25 @@ services:
       MYSQL_USER: football_user
       MYSQL_PASSWORD: football_pass
     ports:
-      - "3306:3306"
+      - 3306:3306
     volumes:
-      - ./football_db.sql:/docker-entrypoint-initdb.d/football_db.sql:Z
+      # This line automatically runs the SQL script when the container is built
+      - ./football_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
 
   backend:
     build: ./backend
     container_name: football_backend
     ports:
-      - "8081:8081"
+      - 3000:3000
     depends_on:
       - db
     environment:
-      - DB_HOST=db
-      - DB_USER=football_user
-      - DB_PASSWORD=football_pass
-      - DB_NAME=football_db
+      DB_HOST: db
+      DB_USER: football_user
+      DB_PASSWORD: football_pass
+      DB_NAME: football_db
+      DB_PORT: 3306
+
+volumes:
+  db_data:

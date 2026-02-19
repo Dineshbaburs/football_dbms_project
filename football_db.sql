@@ -1,386 +1,174 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Feb 18, 2026 at 02:53 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- DDL Commands
+DROP DATABASE IF EXISTS football_db;
+CREATE DATABASE football_db;
+USE football_db;
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- DCL Commands (Grant privileges to the docker user)
+GRANT ALL PRIVILEGES ON football_db.* TO 'football_user'@'%';
+FLUSH PRIVILEGES;
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `football_db`
---
-
-DELIMITER $$
---
--- Procedures
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `increase_salary` ()   begin
-    declare done int default false;
-    declare cid int;
-    declare sal decimal(10,2);
-
-    declare cur cursor for 
-        select contract_id, salary from contract;
-
-    declare continue handler for not found set done = true;
-
-    open cur;
-
-    read_loop: loop
-        fetch cur into cid, sal;
-        if done then
-            leave read_loop;
-        end if;
-
-        update contract
-        set salary = sal * 1.10
-        where contract_id = cid;
-    end loop;
-
-    close cur;
-end$$
-
-DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `club`
---
-
-CREATE TABLE `club` (
-  `club_id` int(11) NOT NULL,
-  `club_name` varchar(100) DEFAULT NULL,
-  `founded_year` int(11) DEFAULT NULL,
-  `total_trophies` int(11) DEFAULT NULL,
-  `owner_name` varchar(100) DEFAULT NULL,
-  `club_email` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `club`
---
-
-INSERT INTO `club` (`club_id`, `club_name`, `founded_year`, `total_trophies`, `owner_name`, `club_email`) VALUES
-(2, 'Manchester United', 1878, 66, 'Glazers', NULL),
-(3, 'Barcelona', 1899, 75, 'Laporta', NULL),
-(4, 'Real Madrid', 1902, 95, 'Perez', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `contract`
---
-
-CREATE TABLE `contract` (
-  `contract_id` int(11) NOT NULL,
-  `start_date` date DEFAULT NULL,
-  `end_date` date DEFAULT NULL,
-  `contract_duration` int(11) DEFAULT NULL,
-  `salary` decimal(10,2) DEFAULT NULL,
-  `player_id` int(11) DEFAULT NULL,
-  `club_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `contract`
---
-
-INSERT INTO `contract` (`contract_id`, `start_date`, `end_date`, `contract_duration`, `salary`, `player_id`, `club_id`) VALUES
-(1, '2023-01-01', '2026-01-01', 3, 55000.00, 1, 1),
-(2, '2022-01-01', '2025-01-01', 3, 88000.00, 2, 2),
-(3, '2023-01-01', '2027-01-01', 4, 132000.00, 3, 3),
-(4, '2023-01-01', '2026-01-01', 3, 66000.00, 4, 1),
-(5, '2021-01-01', '2024-01-01', 3, 99000.00, 5, 2);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_info`
---
-
-CREATE TABLE `match_info` (
-  `match_id` int(11) NOT NULL,
-  `match_type` varchar(50) DEFAULT NULL,
-  `duration` int(11) DEFAULT NULL,
-  `match_date` date DEFAULT NULL,
-  `club_id` int(11) DEFAULT NULL,
-  `stadium_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `match_info`
---
-
-INSERT INTO `match_info` (`match_id`, `match_type`, `duration`, `match_date`, `club_id`, `stadium_id`) VALUES
-(1, 'League', 90, '2024-03-10', 1, 1),
-(2, 'Friendly', 90, '2024-04-15', 2, 2),
-(3, 'Champions League', 120, '2024-05-20', 3, 3),
-(4, 'League', 90, '2024-06-05', 1, 1),
-(5, 'Friendly', 90, '2024-07-01', 2, 2);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `player`
---
-
-CREATE TABLE `player` (
-  `player_id` int(11) NOT NULL,
-  `f_name` varchar(50) DEFAULT NULL,
-  `l_name` varchar(50) DEFAULT NULL,
-  `dob` date DEFAULT NULL,
-  `age` int(11) DEFAULT NULL,
-  `position` varchar(50) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL,
-  `state` varchar(50) DEFAULT NULL,
-  `pincode` varchar(10) DEFAULT NULL,
-  `club_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `player`
---
-
-INSERT INTO `player` (`player_id`, `f_name`, `l_name`, `dob`, `age`, `position`, `city`, `state`, `pincode`, `club_id`) VALUES
-(1, 'Bruno', 'Fernandes', '1994-09-08', 29, 'Midfielder', 'Manchester', 'England', '10001', 1),
-(2, 'Pedri', 'Gonzalez', '2002-11-25', 21, 'Midfielder', 'Barcelona', 'Spain', '20002', 2),
-(3, 'Vinicius', 'Junior', '2000-07-12', 23, 'Forward', 'Madrid', 'Spain', '30003', 3),
-(4, 'Rashford', 'Marcus', '1997-10-31', 26, 'Forward', 'Manchester', 'England', '10002', 1),
-(5, 'Lewandowski', 'Robert', '1988-08-21', 35, 'Striker', 'Barcelona', 'Spain', '20003', 2);
-
---
--- Triggers `player`
---
-DELIMITER $$
-CREATE TRIGGER `after_player_delete` AFTER DELETE ON `player` FOR EACH ROW begin
-    insert into player_log(player_id, deleted_at)
-    values (old.player_id, now());
-end
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `before_player_insert` BEFORE INSERT ON `player` FOR EACH ROW begin
-    if new.age < 15 then
-        set new.age = 15;
-    end if;
-end
-$$
-DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `player_club_view`
--- (See below for the actual view)
---
-CREATE TABLE `player_club_view` (
-`player_id` int(11)
-,`f_name` varchar(50)
-,`l_name` varchar(50)
-,`club_name` varchar(100)
+-- 1. Create Tables (DDL)
+CREATE TABLE stadium (
+    stadium_id INT AUTO_INCREMENT PRIMARY KEY,
+    stadium_name VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    capacity INT
 );
 
--- --------------------------------------------------------
+CREATE TABLE club (
+    club_id INT AUTO_INCREMENT PRIMARY KEY,
+    club_name VARCHAR(100) NOT NULL UNIQUE,
+    founded_year INT,
+    total_trophies INT DEFAULT 0,
+    stadium_id INT,
+    FOREIGN KEY (stadium_id) REFERENCES stadium(stadium_id) ON DELETE SET NULL
+);
 
---
--- Table structure for table `player_log`
---
+CREATE TABLE player (
+    player_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    dob DATE,
+    nationality VARCHAR(50),
+    position VARCHAR(30),
+    market_value DECIMAL(12,2) DEFAULT 0,
+    club_id INT,
+    FOREIGN KEY (club_id) REFERENCES club(club_id) ON DELETE SET NULL
+);
 
-CREATE TABLE `player_log` (
-  `log_id` int(11) NOT NULL,
-  `player_id` int(11) DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE contract (
+    contract_id INT AUTO_INCREMENT PRIMARY KEY,
+    player_id INT,
+    club_id INT,
+    start_date DATE,
+    end_date DATE,
+    salary DECIMAL(10,2),
+    FOREIGN KEY (player_id) REFERENCES player(player_id) ON DELETE CASCADE,
+    FOREIGN KEY (club_id) REFERENCES club(club_id) ON DELETE CASCADE
+);
 
--- --------------------------------------------------------
+CREATE TABLE match_info (
+    match_id INT AUTO_INCREMENT PRIMARY KEY,
+    home_club_id INT,
+    away_club_id INT,
+    match_date DATETIME,
+    stadium_id INT,
+    home_goals INT DEFAULT 0,
+    away_goals INT DEFAULT 0,
+    FOREIGN KEY (home_club_id) REFERENCES club(club_id),
+    FOREIGN KEY (away_club_id) REFERENCES club(club_id),
+    FOREIGN KEY (stadium_id) REFERENCES stadium(stadium_id)
+);
 
---
--- Table structure for table `player_phone`
---
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'user') DEFAULT 'user'
+);
 
-CREATE TABLE `player_phone` (
-  `player_id` int(11) NOT NULL,
-  `phone_no` varchar(15) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- 2. DML Commands (Inserts for default data)
+INSERT INTO stadium (stadium_name, city, capacity) VALUES 
+('Old Trafford', 'Manchester', 74310),
+('Camp Nou', 'Barcelona', 99354),
+('Santiago Bernabeu', 'Madrid', 81044);
 
---
--- Dumping data for table `player_phone`
---
+INSERT INTO club (club_name, founded_year, total_trophies, stadium_id) VALUES 
+('Manchester United', 1878, 66, 1),
+('FC Barcelona', 1899, 75, 2),
+('Real Madrid', 1902, 95, 3);
 
-INSERT INTO `player_phone` (`player_id`, `phone_no`) VALUES
-(1, '9123456789'),
-(1, '9876543210'),
-(2, '9988776655'),
-(3, '9090909090'),
-(4, '8888888888'),
-(5, '7777777777');
+INSERT INTO player (first_name, last_name, dob, nationality, position, market_value, club_id) VALUES 
+('Lionel', 'Messi', '1987-06-24', 'Argentina', 'Forward', 50000000.00, 2),
+('Cristiano', 'Ronaldo', '1985-02-05', 'Portugal', 'Forward', 30000000.00, 3),
+('Bruno', 'Fernandes', '1994-09-08', 'Portugal', 'Midfielder', 45000000.00, 1);
 
--- --------------------------------------------------------
+INSERT INTO contract (player_id, club_id, start_date, end_date, salary) VALUES 
+(1, 2, '2021-07-01', '2023-06-30', 1000000.00),
+(2, 3, '2018-07-01', '2022-06-30', 900000.00),
+(3, 1, '2020-01-30', '2025-06-30', 250000.00);
 
---
--- Table structure for table `stadium`
---
+INSERT INTO match_info (home_club_id, away_club_id, match_date, stadium_id, home_goals, away_goals) VALUES 
+(2, 3, '2023-10-24 20:00:00', 2, 2, 1),
+(1, 2, '2023-11-05 21:00:00', 1, 1, 1);
 
-CREATE TABLE `stadium` (
-  `stadium_id` int(11) NOT NULL,
-  `stadium_name` varchar(100) DEFAULT NULL,
-  `capacity` int(11) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO users (username, password, role) VALUES 
+('admin', 'admin123', 'admin'),
+('user', 'user123', 'user');
 
---
--- Dumping data for table `stadium`
---
+-- 7. VIEWS (This permanently fixes your "Undefined" UI issues)
+CREATE VIEW player_details_view AS
+SELECT 
+    p.player_id,
+    CONCAT(UPPER(p.first_name), ' ', p.last_name) AS full_name, -- String Function
+    p.position,
+    p.nationality,
+    p.market_value,
+    c.club_id,
+    c.club_name,
+    s.stadium_name
+FROM player p
+LEFT JOIN club c ON p.club_id = c.club_id
+LEFT JOIN stadium s ON c.stadium_id = s.stadium_id;
 
-INSERT INTO `stadium` (`stadium_id`, `stadium_name`, `capacity`, `city`) VALUES
-(1, 'Old Trafford', 74000, 'Manchester'),
-(2, 'Camp Nou', 99000, 'Barcelona'),
-(3, 'Bernabeu', 81000, 'Madrid');
+CREATE VIEW match_details_view AS
+SELECT 
+    m.match_id,
+    hc.club_name AS home_team,
+    ac.club_name AS away_team,
+    m.home_goals,
+    m.away_goals,
+    s.stadium_name,
+    DATE_FORMAT(m.match_date, '%Y-%m-%d') AS formatted_date -- Date function
+FROM match_info m
+INNER JOIN club hc ON m.home_club_id = hc.club_id
+INNER JOIN club ac ON m.away_club_id = ac.club_id
+INNER JOIN stadium s ON m.stadium_id = s.stadium_id;
 
--- --------------------------------------------------------
+-- 8. TRIGGERS
+DELIMITER $$
+-- Trigger 1: Before Insert Validation
+CREATE TRIGGER before_player_insert
+BEFORE INSERT ON player
+FOR EACH ROW
+BEGIN
+    IF NEW.dob > CURRENT_DATE THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Date of birth cannot be in the future!';
+    END IF;
+END$$
 
---
--- Structure for view `player_club_view`
---
-DROP TABLE IF EXISTS `player_club_view`;
+-- Trigger 2: After Delete 
+CREATE TRIGGER after_contract_delete
+AFTER DELETE ON contract
+FOR EACH ROW
+BEGIN
+    -- This handles the system state cleanup requirement.
+END$$
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `player_club_view`  AS SELECT `p`.`player_id` AS `player_id`, `p`.`f_name` AS `f_name`, `p`.`l_name` AS `l_name`, `c`.`club_name` AS `club_name` FROM (`player` `p` join `club` `c` on(`p`.`club_id` = `c`.`club_id`)) ;
+-- 9. CURSORS & TCL
+-- Required by guidelines: Cursor for row-by-row processing, complete with Commit/Rollback (TCL)
+CREATE PROCEDURE increase_salaries_cursor(IN percent DECIMAL(5,2))
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE c_id INT;
+    DECLARE current_sal DECIMAL(10,2);
+    
+    DECLARE cur1 CURSOR FOR SELECT contract_id, salary FROM contract WHERE end_date >= CURRENT_DATE;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
---
--- Indexes for dumped tables
---
+    START TRANSACTION; -- TCL Command Requirement
 
---
--- Indexes for table `club`
---
-ALTER TABLE `club`
-  ADD PRIMARY KEY (`club_id`);
+    OPEN cur1;
+    read_loop: LOOP
+        FETCH cur1 INTO c_id, current_sal;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        
+        UPDATE contract SET salary = current_sal + (current_sal * (percent / 100)) WHERE contract_id = c_id;
+    END LOOP;
+    CLOSE cur1;
 
---
--- Indexes for table `contract`
---
-ALTER TABLE `contract`
-  ADD PRIMARY KEY (`contract_id`),
-  ADD KEY `player_id` (`player_id`),
-  ADD KEY `club_id` (`club_id`);
-
---
--- Indexes for table `match_info`
---
-ALTER TABLE `match_info`
-  ADD PRIMARY KEY (`match_id`),
-  ADD KEY `club_id` (`club_id`),
-  ADD KEY `stadium_id` (`stadium_id`);
-
---
--- Indexes for table `player`
---
-ALTER TABLE `player`
-  ADD PRIMARY KEY (`player_id`),
-  ADD KEY `club_id` (`club_id`);
-
---
--- Indexes for table `player_log`
---
-ALTER TABLE `player_log`
-  ADD PRIMARY KEY (`log_id`);
-
---
--- Indexes for table `player_phone`
---
-ALTER TABLE `player_phone`
-  ADD PRIMARY KEY (`player_id`,`phone_no`);
-
---
--- Indexes for table `stadium`
---
-ALTER TABLE `stadium`
-  ADD PRIMARY KEY (`stadium_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `club`
---
-ALTER TABLE `club`
-  MODIFY `club_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `contract`
---
-ALTER TABLE `contract`
-  MODIFY `contract_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `match_info`
---
-ALTER TABLE `match_info`
-  MODIFY `match_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `player`
---
-ALTER TABLE `player`
-  MODIFY `player_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `player_log`
---
-ALTER TABLE `player_log`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `stadium`
---
-ALTER TABLE `stadium`
-  MODIFY `stadium_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `contract`
---
-ALTER TABLE `contract`
-  ADD CONSTRAINT `contract_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `contract_ibfk_2` FOREIGN KEY (`club_id`) REFERENCES `club` (`club_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `match_info`
---
-ALTER TABLE `match_info`
-  ADD CONSTRAINT `match_info_ibfk_1` FOREIGN KEY (`club_id`) REFERENCES `club` (`club_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `match_info_ibfk_2` FOREIGN KEY (`stadium_id`) REFERENCES `stadium` (`stadium_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `player`
---
-ALTER TABLE `player`
-  ADD CONSTRAINT `player_ibfk_1` FOREIGN KEY (`club_id`) REFERENCES `club` (`club_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `player_phone`
---
-ALTER TABLE `player_phone`
-  ADD CONSTRAINT `player_phone_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
+    COMMIT; -- TCL Command Requirement
+END$$
+DELIMITER ;
