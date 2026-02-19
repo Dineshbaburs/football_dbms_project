@@ -11,7 +11,7 @@ const API = {
             if (!response.ok) throw new Error(data.error || "Server error");
             return data;
         } catch (err) {
-            console.error("API Error:", err.message);
+            console.error("Connection Failed:", err.message);
             throw err;
         }
     }
